@@ -14,8 +14,10 @@
       class="viewport"
     >
       <div
+        ref="trackRef"
         class="track"
-        :style="{ transform: `translateX(-${index * itemWidth}%)` }"
+        :style="trackStyle"
+        @transitionend="onTransitionEnd"
       >
         <div
           v-for="(img, i) in loopedImages"
@@ -51,7 +53,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import CarouselNavButton from "../ui/CarouselNavButton.vue";
 import CarouselItem from "./CarouselItem.vue";
 
@@ -68,10 +70,49 @@ const props = defineProps({
 const index = ref(0);
 const selected = ref([]);
 const itemWidth = computed(() => 100 / props.itemsOnView);
+const loopedImages = ref([]);
+const isAnimating = ref(false);
+const transitionEnabled = ref(true);
+const offset = ref(0);
+const action = ref(null);
+const trackRef = ref(null);
 
-const loopedImages = computed(() => [...props.images, ...props.images]);
+watch(
+  () => props.images,
+  (images) => {
+    loopedImages.value = [...images];
+    index.value = 0;
+    offset.value = 0;
+    action.value = null;
+    isAnimating.value = false;
+  },
+  { immediate: true },
+);
 
-function prev() {
+const trackStyle = computed(() => {
+  return {
+    transform: `translateX(${offset.value}%)`,
+    transition: transitionEnabled.value ? "transform 0.4s ease" : "none",
+  };
+});
+
+async function prev() {
+  if (isAnimating.value || loopedImages.value.length <= 1) return;
+  isAnimating.value = true;
+  action.value = "prev";
+
+  const last = loopedImages.value.pop();
+  if (last !== undefined) loopedImages.value.unshift(last);
+
+  transitionEnabled.value = false;
+  offset.value = -itemWidth.value;
+  await nextTick();
+  if (trackRef.value) {
+    void trackRef.value.offsetWidth;
+  }
+
+  transitionEnabled.value = true;
+  offset.value = 0;
   index.value = index.value === 0 ? props.images.length - 1 : index.value - 1;
 
   emit("prev", {
@@ -80,11 +121,35 @@ function prev() {
 }
 
 function next() {
+  if (isAnimating.value || loopedImages.value.length <= 1) return;
+  isAnimating.value = true;
+  action.value = "next";
+  transitionEnabled.value = true;
+  offset.value = -itemWidth.value;
   index.value = (index.value + 1) % props.images.length;
 
   emit("next", {
     index: index.value,
   });
+}
+
+async function onTransitionEnd() {
+  if (!action.value || !loopedImages.value.length) return;
+
+  if (action.value === "next") {
+    const first = loopedImages.value.shift();
+    if (first !== undefined) loopedImages.value.push(first);
+  }
+
+  transitionEnabled.value = false;
+  offset.value = 0;
+  await nextTick();
+  if (trackRef.value) {
+    void trackRef.value.offsetWidth;
+  }
+  transitionEnabled.value = true;
+  action.value = null;
+  isAnimating.value = false;
 }
 
 function toggleSelectItem(img) {
@@ -122,7 +187,6 @@ function onItemClick(img) {
 
   .track {
     display: flex;
-    transition: transform 0.4s ease;
   }
 
   .item {

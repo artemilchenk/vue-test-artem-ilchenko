@@ -1,9 +1,9 @@
 <template>
   <img
     :src="img"
-    @click="$emit('click')"
     :class="['image', { selected: isSelected }]"
-  />
+    @click="$emit('click')"
+  >
 </template>
 
 <script setup lang="ts">

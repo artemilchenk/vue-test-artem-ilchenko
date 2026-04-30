@@ -1,5 +1,8 @@
 <template>
-  <div class="nav" @click="$emit('click')">
+  <div
+    class="nav"
+    @click="$emit('click')"
+  >
     <slot />
   </div>
 </template>

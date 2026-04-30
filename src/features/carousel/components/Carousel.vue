@@ -1,10 +1,18 @@
 <template>
   <div class="carousel">
-    <CarouselNavButton class="nav-button prev" @click="prev">
-      <slot name="prev-button">prev</slot>
+    <CarouselNavButton
+      class="nav-button prev"
+      @click="prev"
+    >
+      <slot name="prev-button">
+        prev
+      </slot>
     </CarouselNavButton>
 
-    <div ref="carouselRef" class="viewport">
+    <div
+      ref="carouselRef"
+      class="viewport"
+    >
       <div
         class="track"
         :style="{ transform: `translateX(-${index * itemWidth}%)` }"
@@ -16,16 +24,28 @@
           :style="{ width: `${itemWidth}%` }"
         >
           <div @click="onItemClick(img)">
-            <slot name="item" :img="img" :selected="selected.includes(img)">
-              <CarouselItem :img="img" :is-selected="selected.includes(img)" />
+            <slot
+              name="item"
+              :img="img"
+              :selected="selected.includes(img)"
+            >
+              <CarouselItem
+                :img="img"
+                :is-selected="selected.includes(img)"
+              />
             </slot>
           </div>
         </div>
       </div>
     </div>
 
-    <CarouselNavButton class="nav-button next" @click="next">
-      <slot name="next-button">next</slot>
+    <CarouselNavButton
+      class="nav-button next"
+      @click="next"
+    >
+      <slot name="next-button">
+        next
+      </slot>
     </CarouselNavButton>
   </div>
 </template>
@@ -38,7 +58,10 @@ import CarouselItem from "./CarouselItem.vue";
 const emit = defineEmits(["selectChange", "next", "prev"]);
 
 const props = defineProps({
-  images: Array,
+  images: {
+    type: Array,
+    default: () => [],
+  },
   itemsOnView: { type: Number, default: 4 },
 });
 

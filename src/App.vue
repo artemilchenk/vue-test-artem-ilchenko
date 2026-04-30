@@ -2,20 +2,34 @@
   <div class="app">
     <h1>Image Carousel</h1>
 
-    <div ref="carouselRef" class="carousel">
+    <div
+      ref="carouselRef"
+      class="carousel"
+    >
       <Carousel
         :images="images"
-        :itemsOnView="itemsOnView"
-        @selectChange="handleSelect"
+        :items-on-view="itemsOnView"
+        @select-change="handleSelect"
       >
-        <template #item="{ img, selected, toggle }">
-          <CarouselItem :img="img" :is-selected="selected" />
+        <template #item="{ img, selected: isSelected }">
+          <CarouselItem
+            :img="img"
+            :is-selected="isSelected"
+          />
         </template>
         <template #prev-button>
-          <div class="button"><div class="button-content">◀</div></div>
+          <div class="button">
+            <div class="button-content">
+              ◀
+            </div>
+          </div>
         </template>
         <template #next-button>
-          <div class="button"><div class="button-content">▶</div></div>
+          <div class="button">
+            <div class="button-content">
+              ▶
+            </div>
+          </div>
         </template>
       </Carousel>
     </div>
@@ -23,7 +37,12 @@
     <div class="selected">
       <h2>Selected Images</h2>
       <div class="list">
-        <img v-for="url in selected" :key="url" :src="url" class="item" />
+        <img
+          v-for="url in selected"
+          :key="url"
+          :src="url"
+          class="item"
+        >
       </div>
     </div>
   </div>

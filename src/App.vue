@@ -2,66 +2,104 @@
   <div class="app">
     <h1>Image Carousel</h1>
 
-    <Carousel
-      :images="images"
-      :selected="selected"
-      @update:selected="selected = $event"
-    />
+    <div ref="carouselRef" class="carousel">
+      <Carousel
+        :images="images"
+        :itemsOnView="itemsOnView"
+        @selectChange="handleSelect"
+      >
+        <template #item="{ img, selected, toggle }">
+          <CarouselItem :img="img" :is-selected="selected" />
+        </template>
+        <template #prev-button>
+          <div class="button"><div class="button-content">◀</div></div>
+        </template>
+        <template #next-button>
+          <div class="button"><div class="button-content">▶</div></div>
+        </template>
+      </Carousel>
+    </div>
 
     <div class="selected">
       <h2>Selected Images</h2>
-      <div class="selected-list">
-        <img
-          v-for="url in selected"
-          :key="url"
-          :src="url"
-          class="selected-item"
-        />
+      <div class="list">
+        <img v-for="url in selected" :key="url" :src="url" class="item" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import Carousel from './components/Carousel.vue'
+import { Carousel } from "./features/index.ts";
+import CarouselItem from "./features/carousel/components/CarouselItem.vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 
-const images = ref([])
-const selected = ref([])
+const carouselRef = ref();
+const images = ref([]);
+const selected = ref([]);
+const itemsOnView = ref(0);
+
+function handleSelect({ selected: selectedItems }) {
+  selected.value = selectedItems;
+}
 
 function generateImages(count) {
   return Array.from(
     { length: count },
-    (_, i) => `https://picsum.photos/seed/${i}/600/400`
-  )
+    (_, i) => `https://picsum.photos/seed/${i}/600/400`,
+  );
+}
+
+function updateBreakpoint() {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  if (isMobile) itemsOnView.value = 1;
+  if (isDesktop) itemsOnView.value = 4;
 }
 
 onMounted(() => {
-  images.value = generateImages(20)
-})
+  images.value = generateImages(20);
+  updateBreakpoint();
+  window.addEventListener("resize", updateBreakpoint);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateBreakpoint);
+});
 </script>
 
 <style scoped lang="scss">
 .app {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1054px;
   margin: 0 auto;
-  padding: 20px;
 
-  h1 {
-    margin-bottom: 16px;
+  .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1f2028;
+    padding: 8px;
+    cursor: pointer;
+    color: darkred;
+
+    .button-content {
+    }
   }
 }
 
 .selected {
-  margin-top: 24px;
-
-  &-list {
+  .list {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
   }
 
-  &-item {
+  .item {
     width: 100px;
     height: 70px;
     object-fit: cover;

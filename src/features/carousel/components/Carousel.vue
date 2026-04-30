@@ -5,23 +5,6 @@
     </CarouselNavButton>
 
     <div ref="carouselRef" class="viewport">
-      <!--      <div
-        class="track"
-        :style="{ transform: `translateX(-${index * itemWidth}px)` }"
-      >
-        <div
-          v-for="(img, i) in loopedImages"
-          :key="i"
-          class="item"
-          :style="{ width: itemWidth + 'px' }"
-        >
-          <div @click="onItemClick(img)">
-            <slot name="item" :img="img" :selected="selected.includes(img)">
-              <CarouselItem :img="img" :is-selected="selected.includes(img)" />
-            </slot>
-          </div>
-        </div>
-      </div>-->
       <div
         class="track"
         :style="{ transform: `translateX(-${index * itemWidth}%)` }"
